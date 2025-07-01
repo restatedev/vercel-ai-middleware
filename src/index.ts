@@ -1,1 +1,1 @@
-export { counter } from './lib/counter.js';
+export { testService } from './lib/test';
