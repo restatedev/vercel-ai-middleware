@@ -44,8 +44,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install
-      - run: npm run local-release
-      - run: cd dist/apps/web-ui && zip -r ../../../ui-v${{ needs.check-version.outputs.version }}.zip .
+      - run: npm run ci
       - name: Create a release
         id: create-release
         uses: ncipollo/release-action@v1
