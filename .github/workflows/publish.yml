@@ -1,0 +1,21 @@
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run local-release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

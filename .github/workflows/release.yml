@@ -1,0 +1,55 @@
+on:
+  push:
+    branches: [main]
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: johnnybenson/package-json-versioned-action@v1.0.9
+        id: package-json
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "has-updated -- ${{ steps.package-json.outputs.has-updated }}"
+    outputs:
+      has-updated: ${{ steps.package-json.outputs.has-updated }}
+      version: ${{ steps.package-json.outputs.version }}
+  release:
+    runs-on: ubuntu-latest
+    name: Release
+    needs: check-version
+    permissions:
+      contents: write
+    if: ${{ needs.check-version.outputs.has-updated == 'true' }}
+    outputs:
+      upload-url: ${{ steps.create-release.outputs.upload_url }}
+      version: ${{ needs.check-version.outputs.version }}
+      tag: v${{ needs.check-version.outputs.version }}
+      artifact-name: ui-v${{ needs.check-version.outputs.version }}.zip
+    steps:
+      - run: echo "has-updated -- ${{ needs.check-version.outputs.has-updated }}"
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run ci
+      - name: Create a release
+        id: create-release
+        uses: ncipollo/release-action@v1
+        with:
+          commit: ${{ github.sha }}
+          makeLatest: true
+          tag: v${{ needs.check-version.outputs.version }}
+          generateReleaseNotes: true

@@ -1,0 +1,63 @@
+{
+  "name": "@restatedev/vercel-ai-middleware",
+  "version": "0.0.1",
+  "description": "Vercel AI Middleware",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.cjs"
+    }
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@changesets/cli": "^2.29.5",
+    "@eslint/js": "^9.30.1",
+    "@eslint/json": "^0.12.0",
+    "@eslint/markdown": "^6.6.0",
+    "@microsoft/api-extractor": "^7.52.8",
+    "@types/node": "^24.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.1",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.1"
+  },
+  "peerDependencies": {
+    "@restatedev/restate-sdk": "^1.6.0",
+    "ai": "^4.3.16",
+    "superjson": "^2.2.2"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "check-exports": "attw --pack .",
+    "lint": "tsc && eslint",
+    "ci": "npm run build && npm run check-format && npm run check-exports && npm run lint && npm run check-forgotten-exports",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "local-release": "changeset publish",
+    "prepublishOnly": "npm run ci",
+    "check-forgotten-exports": "api-extractor run --local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://nikrooz@github.com/restatedev/vercel-ai-middleware.git"
+  },
+  "bugs": {
+    "url": "https://github.com/restatedev/vercel-ai-middleware/issues"
+  },
+  "homepage": "https://github.com/restatedev/vercel-ai-middleware#readme"
+}
