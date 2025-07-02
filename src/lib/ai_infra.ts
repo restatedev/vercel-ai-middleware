@@ -1,4 +1,4 @@
-import * as restate from '@restatedev/restate-sdk';
+import type { Serde, Context, RunOptions } from '@restatedev/restate-sdk';
 import type { LanguageModelV1, LanguageModelV1Middleware } from 'ai';
 import superjson from 'superjson';
 
@@ -6,7 +6,7 @@ export type DoGenerateResponseType = Awaited<
   ReturnType<LanguageModelV1['doGenerate']>
 >;
 
-class SuperJsonSerde<T> implements restate.Serde<T> {
+export class SuperJsonSerde<T> implements Serde<T> {
   contentType = 'application/json';
 
   serialize(value: T): Uint8Array {
@@ -31,8 +31,8 @@ export const superJson = new SuperJsonSerde<any>();
  * @returns an LanguageModelV1Middleware that provides durability to the underlying model.
  */
 export const durableCalls = (
-  ctx: restate.Context,
-  opts?: restate.RunOptions<DoGenerateResponseType>,
+  ctx: Context,
+  opts?: RunOptions<DoGenerateResponseType>,
 ): LanguageModelV1Middleware => {
   const runOpts = {
     serde: new SuperJsonSerde<DoGenerateResponseType>(),

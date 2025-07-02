@@ -21,5 +21,11 @@ export default defineConfig([
     language: 'json/json',
     extends: ['json/recommended'],
   },
-  globalIgnores(['dist/*', 'node_modules/*', 'package-lock.json']),
+  {
+    files: ['**/*.json'],
+    plugins: { json },
+    language: 'json/jsonc',
+    extends: ['json/recommended'],
+  },
+  globalIgnores(['dist/*', 'node_modules/*', 'package-lock.json', '.api/*']),
 ]);

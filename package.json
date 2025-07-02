@@ -22,6 +22,7 @@
     "@eslint/js": "^9.30.1",
     "@eslint/json": "^0.12.0",
     "@eslint/markdown": "^6.6.0",
+    "@microsoft/api-extractor": "^7.52.8",
     "@types/node": "^24.0.10",
     "@typescript-eslint/eslint-plugin": "^8.35.1",
     "@typescript-eslint/parser": "^8.35.1",
@@ -48,7 +49,8 @@
     "changeset": "changeset",
     "version": "changeset version",
     "local-release": "changeset publish",
-    "prepublishOnly": "npm run ci"
+    "prepublishOnly": "npm run ci",
+    "api:extract": "api-extractor run --local --diagnostics"
   },
   "repository": {
     "type": "git",
