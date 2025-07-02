@@ -13,6 +13,7 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "module": "Preserve",
-    "noEmit": true
+    "noEmit": true,
+    "types": ["node"]
   }
 }
