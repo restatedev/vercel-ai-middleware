@@ -33,7 +33,7 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
     outputs:
-      need-to-release: ${{ steps.check_tag.outputs.exists != false }}
+      need-to-release: ${{ steps.check_tag.outputs.exists == 'false' }}
       version: ${{ steps.get_version.outputs.version }}
   release:
     runs-on: ubuntu-latest
