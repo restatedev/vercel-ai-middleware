@@ -18,23 +18,38 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
       - run: echo "has-updated -- ${{ steps.package-json.outputs.has-updated }}"
+
+      - name: Get package version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      - name: Check if tag exists
+        id: check_tag
+        env:
+          GH_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ steps.get_version.outputs.tag }}"
+          echo "Checking if tag $TAG_NAME exists..."
+          if gh release view "$TAG_NAME" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
     outputs:
-      has-updated: ${{ steps.package-json.outputs.has-updated }}
-      version: ${{ steps.package-json.outputs.version }}
+      need-to-release: ${{ steps.check_tag.outputs.exists != 'false' }}
+      version: ${{ steps.get_version.version }}
   release:
     runs-on: ubuntu-latest
     name: Release
     needs: check-version
     permissions:
       contents: write
-    if: ${{ needs.check-version.outputs.has-updated == 'true' }}
-    outputs:
-      upload-url: ${{ steps.create-release.outputs.upload_url }}
-      version: ${{ needs.check-version.outputs.version }}
-      tag: v${{ needs.check-version.outputs.version }}
-      artifact-name: ui-v${{ needs.check-version.outputs.version }}.zip
+    if: ${{ needs.check-version.outputs.need-to-release == 'true' }}
     steps:
-      - run: echo "has-updated -- ${{ needs.check-version.outputs.has-updated }}"
+      - run: echo "need-to-release -- ${{ needs.check-version.outputs.need-to-release }}"
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -43,10 +58,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install
-      - run: npm run local-release
+      - name: Configure npm authentication
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm install
+      - name: Publish npm package
+        run: npm run local-release
       - name: Create a release
         id: create-release
         uses: ncipollo/release-action@v1
