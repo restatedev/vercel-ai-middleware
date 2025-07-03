@@ -34,4 +34,6 @@ We use [changeset](https://github.com/changesets/changesets) to manage our relea
    - Create a new release and tag
    - Publish the package to npm
 
-** TODO:** - Configure ⁠GITHUB_TOKEN with repository access in github action - Add ⁠NPM_TOKEN for npm publishing in github action
+** TODO:**
+
+- Add ⁠NPM_TOKEN for npm publishing in github action
