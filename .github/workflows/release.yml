@@ -13,12 +13,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: johnnybenson/package-json-versioned-action@v1.0.9
-        id: package-json
-        with:
-          GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
-      - run: echo "has-updated -- ${{ steps.package-json.outputs.has-updated }}"
-
       - name: Get package version
         id: get_version
         run: |
