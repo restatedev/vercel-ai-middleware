@@ -34,7 +34,7 @@
     "typescript-eslint": "^8.35.1"
   },
   "peerDependencies": {
-    "@restatedev/restate-sdk": "^1.6.0",
+    "@restatedev/restate-sdk": "^1.7.0",
     "ai": "^4.3.16",
     "superjson": "^2.2.2"
   },

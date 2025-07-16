@@ -1,5 +1,8 @@
 export { durableCalls, superJson, SuperJsonSerde } from './lib/ai_infra';
-export type { DoGenerateResponseType } from './lib/ai_infra';
+export type {
+  DoGenerateResponseType,
+  toolErrorAsTerminalError,
+} from './lib/ai_infra';
 export type {
   Context,
   RunOptions,
@@ -23,4 +26,5 @@ export type {
   ClientCallOptions,
   SendOpts,
   ClientSendOptions,
+  ServiceOptions,
 } from '@restatedev/restate-sdk';

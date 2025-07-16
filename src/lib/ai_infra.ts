@@ -1,5 +1,13 @@
-import type { Serde, Context, RunOptions } from '@restatedev/restate-sdk';
+import {
+  type Serde,
+  type Context,
+  type RunOptions,
+  type ServiceOptions,
+  TerminalError,
+} from '@restatedev/restate-sdk';
 import type { LanguageModelV1, LanguageModelV1Middleware } from 'ai';
+import { ToolExecutionError } from 'ai';
+
 import superjson from 'superjson';
 
 export type DoGenerateResponseType = Awaited<
@@ -19,6 +27,15 @@ export class SuperJsonSerde<T> implements Serde<T> {
     return superjson.parse(js) as T;
   }
 }
+
+export const toolErrorAsTerminalError: ServiceOptions = {
+  asTerminalError: (error: unknown): TerminalError | undefined => {
+    if (ToolExecutionError.isInstance(error)) {
+      return new TerminalError(error.message, { cause: error });
+    }
+    return undefined;
+  },
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const superJson = new SuperJsonSerde<any>();
