@@ -1,8 +1,6 @@
 export { durableCalls, superJson, SuperJsonSerde } from './lib/ai_infra';
-export type {
-  DoGenerateResponseType,
-  toolErrorAsTerminalError,
-} from './lib/ai_infra';
+export type { DoGenerateResponseType } from './lib/ai_infra';
+export { toolErrorAsTerminalError } from './lib/ai_infra';
 export type {
   Context,
   RunOptions,
