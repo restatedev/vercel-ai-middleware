@@ -1,5 +1,11 @@
 # @restatedev/vercel-ai-middleware
 
+## 0.1.2
+
+### Patch Changes
+
+- Unwrap TerminalError from ToolExecutionError
+
 ## 0.1.1
 
 ### Patch Changes

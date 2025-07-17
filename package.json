@@ -1,6 +1,6 @@
 {
   "name": "@restatedev/vercel-ai-middleware",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Vercel AI Middleware",
   "files": [
     "dist",
