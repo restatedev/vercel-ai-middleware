@@ -1,5 +1,11 @@
 # @restatedev/vercel-ai-middleware
 
+## 0.1.1
+
+### Patch Changes
+
+- d34e2b6: Fix toolErrorAsTerminalError export as type
+
 ## 0.1.0
 
 ### Minor Changes
