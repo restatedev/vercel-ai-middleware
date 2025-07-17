@@ -30,8 +30,11 @@ export class SuperJsonSerde<T> implements Serde<T> {
 
 export const toolErrorAsTerminalError: ServiceOptions = {
   asTerminalError: (error: unknown): TerminalError | undefined => {
-    if (ToolExecutionError.isInstance(error)) {
-      return new TerminalError(error.message, { cause: error });
+    if (!ToolExecutionError.isInstance(error)) {
+      return undefined;
+    }
+    if (error.cause instanceof TerminalError) {
+      return error.cause;
     }
     return undefined;
   },
