@@ -3,13 +3,13 @@ import {
   type Context,
   type RunOptions,
   TerminalError,
-} from "@restatedev/restate-sdk";
+} from '@restatedev/restate-sdk';
 import type {
   LanguageModelV2,
   LanguageModelV2Middleware,
-} from "@ai-sdk/provider";
+} from '@ai-sdk/provider';
 
-import superjson from "superjson";
+import superjson from 'superjson';
 import {
   type StepResult,
   type StopCondition,
@@ -18,7 +18,7 @@ import {
 } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
-  ReturnType<LanguageModelV2["doGenerate"]>
+  ReturnType<LanguageModelV2['doGenerate']>
 >;
 
 export class SuperJsonSerde<T> implements Serde<T> {
@@ -62,7 +62,7 @@ export const durableCalls = (
 
 const getFirstTerminalToolErrorForStep = (step: StepResult<any>) =>
   step.content.find(
-    (el) => el.type === "tool-error" && el.error instanceof TerminalError,
+    (el) => el.type === 'tool-error' && el.error instanceof TerminalError,
   ) as TypedToolError<any> | undefined;
 
 export const getTerminalToolSteps = (steps: StepResult<any>[]) =>
@@ -79,7 +79,7 @@ export const rethrowTerminalToolError = (step: StepResult<any>) => {
   // Find the tool message corresponding to the terminal error
   const toolMessage = step.response.messages.find(
     (msg) =>
-      msg.role === "tool" &&
+      msg.role === 'tool' &&
       msg.content.some((c) => c.toolCallId === terminalStep.toolCallId),
   ) as ToolModelMessage;
   const errorText =
@@ -87,7 +87,7 @@ export const rethrowTerminalToolError = (step: StepResult<any>) => {
       .find(
         (content) =>
           content.toolCallId === terminalStep.toolCallId &&
-          content.type === "tool-result",
+          content.type === 'tool-result',
       )
       ?.output?.value?.toString() ||
     `Terminal error for tool call ${terminalStep.toolName}.`;
