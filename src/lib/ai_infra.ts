@@ -12,9 +12,9 @@ import type {
 import superjson from 'superjson';
 import {
   type StepResult,
-  type StopCondition,
   type ToolModelMessage,
   type TypedToolError,
+  type ToolSet,
 } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
@@ -60,18 +60,28 @@ export const durableCalls = (
   };
 };
 
-const getFirstTerminalToolErrorForStep = (step: StepResult<any>) =>
+const getFirstTerminalToolErrorForStep = <TOOLS extends ToolSet>(
+  step: StepResult<TOOLS>,
+) =>
   step.content.find(
     (el) => el.type === 'tool-error' && el.error instanceof TerminalError,
-  ) as TypedToolError<any> | undefined;
+  ) as TypedToolError<TOOLS> | undefined;
 
-export const getTerminalToolSteps = (steps: StepResult<any>[]) =>
+export const getTerminalToolSteps = <TOOLS extends ToolSet>(
+  steps: StepResult<TOOLS>[],
+) =>
   steps.filter((step) => getFirstTerminalToolErrorForStep(step) != undefined);
 
-export const hasTerminalToolError: StopCondition<any> = ({ steps }) =>
+export const hasTerminalToolError = <TOOLS extends ToolSet>({
+  steps,
+}: {
+  steps: StepResult<TOOLS>[];
+}) =>
   steps.some((step) => getFirstTerminalToolErrorForStep(step) !== undefined);
 
-export const rethrowTerminalToolError = (step: StepResult<any>) => {
+export const rethrowTerminalToolError = <TOOLS extends ToolSet>(
+  step: StepResult<TOOLS>,
+) => {
   const terminalStep = getFirstTerminalToolErrorForStep(step);
   if (!terminalStep) {
     return;
