@@ -1,5 +1,11 @@
 # @restatedev/vercel-ai-middleware
 
+## 0.2.0
+
+### Minor Changes
+
+- Upgrade middleware to support Vercel AI SDK v5
+
 ## 0.1.2
 
 ### Patch Changes
