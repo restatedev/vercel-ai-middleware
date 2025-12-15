@@ -1,5 +1,11 @@
 # @restatedev/vercel-ai-middleware
 
+## 0.2.1
+
+### Patch Changes
+
+- d789cd5: Fixed usage of rethrowTerminalToolError with cloudflare-workers module
+
 ## 0.2.0
 
 ### Minor Changes
