@@ -10,12 +10,7 @@ import type {
 } from '@ai-sdk/provider';
 
 import superjson from 'superjson';
-import {
-  type StepResult,
-  type ToolModelMessage,
-  type TypedToolError,
-  type ToolSet,
-} from 'ai';
+import { type StepResult, type TypedToolError, type ToolSet } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
   ReturnType<LanguageModelV2['doGenerate']>
@@ -60,11 +55,28 @@ export const durableCalls = (
   };
 };
 
+function isTerminalError(err: unknown) {
+  if (err instanceof TerminalError) {
+    return true;
+  }
+
+  // When using cloudflare workers with this integration,
+  // the above 'err instanceof TerminalError' will not match, because
+  // `TerminalError` from `@restatedev/restate-sdk` is different from
+  // `TerminalError` from `@restatedev/restate-sdk-cloudflare-workers`.
+  const e = err as Error & { code?: number };
+  return (
+    (e?.name === 'TerminalError' && e?.code !== undefined) ||
+    (e?.name === 'TimeoutError' && e?.code === 408) ||
+    (e?.name === 'CancelledError' && e?.code === 409)
+  );
+}
+
 const getFirstTerminalToolErrorForStep = <TOOLS extends ToolSet>(
   step: StepResult<TOOLS>,
 ) =>
   step.content.find(
-    (el) => el.type === 'tool-error' && el.error instanceof TerminalError,
+    (el) => el.type === 'tool-error' && isTerminalError(el.error),
   ) as TypedToolError<TOOLS> | undefined;
 
 export const getTerminalToolSteps = <TOOLS extends ToolSet>(
@@ -86,21 +98,6 @@ export const rethrowTerminalToolError = <TOOLS extends ToolSet>(
   if (!terminalStep) {
     return;
   }
-  // Find the tool message corresponding to the terminal error
-  const toolMessage = step.response.messages.find(
-    (msg) =>
-      msg.role === 'tool' &&
-      msg.content.some((c) => c.toolCallId === terminalStep.toolCallId),
-  ) as ToolModelMessage;
-  const errorText =
-    toolMessage?.content
-      .find(
-        (content) =>
-          content.toolCallId === terminalStep.toolCallId &&
-          content.type === 'tool-result',
-      )
-      ?.output?.value?.toString() ||
-    `Terminal error for tool call ${terminalStep.toolName}.`;
-  // Rethrow the terminal error with the extracted message
-  throw new TerminalError(errorText);
+  // Rethrow the terminal error
+  throw terminalStep.error;
 };
