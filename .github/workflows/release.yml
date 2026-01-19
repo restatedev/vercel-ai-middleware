@@ -12,7 +12,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
       - name: Get package version
         id: get_version
         run: |
@@ -41,6 +41,7 @@ jobs:
     needs: check-version
     permissions:
       contents: write
+      id-token: write
     if: ${{ needs.check-version.outputs.need-to-release == 'true' }}
     steps:
       - run: echo "need-to-release -- ${{ needs.check-version.outputs.need-to-release }}"
@@ -51,14 +52,14 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - name: Configure npm authentication
-        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
       - run: npm install
       - name: Publish npm package
         run: npm run local-release
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ''
       - name: Create a release
         id: create-release
         uses: ncipollo/release-action@v1
