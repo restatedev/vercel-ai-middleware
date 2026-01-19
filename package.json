@@ -34,8 +34,8 @@
     "typescript-eslint": "^8.35.1"
   },
   "peerDependencies": {
-    "@restatedev/restate-sdk": "^1.8.4",
-    "ai": "^5.0.30",
+    "@restatedev/restate-sdk": "^1.10.2",
+    "ai": "^6.0.41",
     "superjson": "^2.2.2"
   },
   "scripts": {
@@ -54,7 +54,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://nikrooz@github.com/restatedev/vercel-ai-middleware.git"
+    "url": "git+https://github.com/restatedev/vercel-ai-middleware.git"
   },
   "bugs": {
     "url": "https://github.com/restatedev/vercel-ai-middleware/issues"
