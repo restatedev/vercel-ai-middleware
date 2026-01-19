@@ -5,15 +5,15 @@ import {
   TerminalError,
 } from '@restatedev/restate-sdk';
 import type {
-  LanguageModelV2,
-  LanguageModelV2Middleware,
+  LanguageModelV3,
+  LanguageModelV3Middleware,
 } from '@ai-sdk/provider';
 
 import superjson from 'superjson';
 import { type StepResult, type TypedToolError, type ToolSet } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
-  ReturnType<LanguageModelV2['doGenerate']>
+  ReturnType<LanguageModelV3['doGenerate']>
 >;
 
 export class SuperJsonSerde<T> implements Serde<T> {
@@ -43,13 +43,14 @@ export const superJson = new SuperJsonSerde<any>();
 export const durableCalls = (
   ctx: Context,
   opts?: RunOptions<DoGenerateResponseType>,
-): LanguageModelV2Middleware => {
+): LanguageModelV3Middleware => {
   const runOpts = {
     serde: new SuperJsonSerde<DoGenerateResponseType>(),
     ...opts,
   };
 
   return {
+    specificationVersion: 'v3',
     wrapGenerate: async ({ model, doGenerate }) =>
       ctx.run(`calling ${model.provider}`, async () => doGenerate(), runOpts),
   };

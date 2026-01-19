@@ -29,4 +29,5 @@ export type {
   SendOpts,
   ClientSendOptions,
   ServiceOptions,
+  RetryPolicy,
 } from '@restatedev/restate-sdk';
