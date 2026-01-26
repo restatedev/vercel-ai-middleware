@@ -36,6 +36,7 @@
   "peerDependencies": {
     "@restatedev/restate-sdk": "^1.10.2",
     "ai": "^6.0.41",
+    "@ai-sdk/mcp": "^1.0.10",
     "superjson": "^2.2.2"
   },
   "scripts": {
