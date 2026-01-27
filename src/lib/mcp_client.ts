@@ -1,13 +1,19 @@
-import * as restate from '@restatedev/restate-sdk';
 import {
   createMCPClient,
   type MCPClient,
   type MCPClientConfig,
 } from '@ai-sdk/mcp';
 import { AISDKError, type ToolExecutionOptions } from 'ai';
-import { type RunOptions, TerminalError } from '@restatedev/restate-sdk';
-// Extract all types from the MCPClient interface since they're not exported
-type ToolSchemas =
+import {
+  type Context,
+  type RunOptions,
+  TerminalError,
+} from '@restatedev/restate-sdk';
+
+// Extract types from the MCPClient interface since they're not exported by @ai-sdk/mcp
+// These are exported so consumers can use them in their own type annotations
+
+export type ToolSchemas =
   | Record<
       string,
       {
@@ -16,28 +22,34 @@ type ToolSchemas =
     >
   | 'automatic'
   | undefined;
-type PaginatedRequest = Parameters<MCPClient['listResources']>[0] extends {
+export type PaginatedRequest = Parameters<
+  MCPClient['listResources']
+>[0] extends {
   params?: infer P;
 }
   ? { params: P }
   : never;
-type RequestOptions = Parameters<MCPClient['listResources']>[0] extends {
+export type RequestOptions = Parameters<MCPClient['listResources']>[0] extends {
   options?: infer O;
 }
   ? O
   : never;
-type ListResourcesResult = Awaited<ReturnType<MCPClient['listResources']>>;
-type ReadResourceResult = Awaited<ReturnType<MCPClient['readResource']>>;
-type ListResourceTemplatesResult = Awaited<
+export type ListResourcesResult = Awaited<
+  ReturnType<MCPClient['listResources']>
+>;
+export type ReadResourceResult = Awaited<ReturnType<MCPClient['readResource']>>;
+export type ListResourceTemplatesResult = Awaited<
   ReturnType<MCPClient['listResourceTemplates']>
 >;
-type ListPromptsResult = Awaited<
+export type ListPromptsResult = Awaited<
   ReturnType<MCPClient['experimental_listPrompts']>
 >;
-type GetPromptResult = Awaited<ReturnType<MCPClient['experimental_getPrompt']>>;
+export type GetPromptResult = Awaited<
+  ReturnType<MCPClient['experimental_getPrompt']>
+>;
 
 export async function createRestateMCPClient(
-  ctx: restate.Context,
+  ctx: Context,
   config: MCPClientConfig,
   runOptions?: RunOptions<never>,
 ) {
@@ -69,12 +81,12 @@ export async function createRestateMCPClient(
  */
 export class RestateMCPClient {
   private readonly client: MCPClient;
-  private readonly ctx: restate.Context;
+  private readonly ctx: Context;
   private readonly name: string;
   private readonly retryPolicy: RunOptions<never>;
 
   constructor(
-    ctx: restate.Context,
+    ctx: Context,
     name: string,
     client: MCPClient,
     retryPolicy: RunOptions<never>,
