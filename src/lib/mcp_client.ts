@@ -9,44 +9,17 @@ import {
   type RunOptions,
   TerminalError,
 } from '@restatedev/restate-sdk';
-
-// Extract types from the MCPClient interface since they're not exported by @ai-sdk/mcp
-// These are exported so consumers can use them in their own type annotations
-
-export type ToolSchemas =
-  | Record<
-      string,
-      {
-        inputSchema: never;
-      }
-    >
-  | 'automatic'
-  | undefined;
-export type PaginatedRequest = Parameters<
-  MCPClient['listResources']
->[0] extends {
-  params?: infer P;
-}
-  ? { params: P }
-  : never;
-export type RequestOptions = Parameters<MCPClient['listResources']>[0] extends {
-  options?: infer O;
-}
-  ? O
-  : never;
-export type ListResourcesResult = Awaited<
-  ReturnType<MCPClient['listResources']>
->;
-export type ReadResourceResult = Awaited<ReturnType<MCPClient['readResource']>>;
-export type ListResourceTemplatesResult = Awaited<
-  ReturnType<MCPClient['listResourceTemplates']>
->;
-export type ListPromptsResult = Awaited<
-  ReturnType<MCPClient['experimental_listPrompts']>
->;
-export type GetPromptResult = Awaited<
-  ReturnType<MCPClient['experimental_getPrompt']>
->;
+import type {
+  GetPromptResult,
+  ListPromptsResult,
+  ListResourcesResult,
+  ListResourceTemplatesResult,
+  McpToolSet,
+  PaginatedRequest,
+  ReadResourceResult,
+  RequestOptions,
+  ToolSchemas,
+} from './types';
 
 export async function createRestateMCPClient(
   ctx: Context,
@@ -102,8 +75,7 @@ export class RestateMCPClient {
    */
   async tools<TOOL_SCHEMAS extends ToolSchemas = 'automatic'>(options?: {
     schemas?: TOOL_SCHEMAS;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }): Promise<Record<string, any>> {
+  }): Promise<McpToolSet<TOOL_SCHEMAS>> {
     const tools = await this.ctx.run(
       `${this.name}-mcp-list-tools`,
       async () => await this.client.tools(options),
@@ -150,7 +122,7 @@ export class RestateMCPClient {
           type: 'dynamic',
         },
       ]),
-    );
+    ) as McpToolSet<TOOL_SCHEMAS>;
   }
 
   /**
