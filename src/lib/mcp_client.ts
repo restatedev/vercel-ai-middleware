@@ -88,9 +88,9 @@ export class RestateMCPClient {
   /**
    * Get tools from the MCP server, wrapped in ctx.run for durability
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async tools<TOOL_SCHEMAS extends ToolSchemas = 'automatic'>(options?: {
     schemas?: TOOL_SCHEMAS;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }): Promise<Record<string, any>> {
     const tools = await this.ctx.run(
       `${this.name}-mcp-list-tools`,
