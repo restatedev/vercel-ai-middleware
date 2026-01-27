@@ -5,10 +5,7 @@ export {
   getTerminalToolSteps,
   rethrowTerminalToolError,
 } from './lib/ai_infra';
-export {
-  createRestateMCPClient,
-  RestateMCPClient
-} from './lib/mcp_client'
+export { createRestateMCPClient, RestateMCPClient } from './lib/mcp_client';
 export type {
   Context,
   RunOptions,

@@ -61,7 +61,6 @@ export async function createRestateMCPClient(
   );
 }
 
-
 /**
  * MCP Client that wraps all server calls in Restate's ctx.run for durability and observability.
  *
