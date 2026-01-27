@@ -61,6 +61,7 @@ export async function createRestateMCPClient(
   );
 }
 
+
 /**
  * MCP Client that wraps all server calls in Restate's ctx.run for durability and observability.
  *
@@ -88,14 +89,14 @@ export class RestateMCPClient {
   /**
    * Get tools from the MCP server, wrapped in ctx.run for durability
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async tools<TOOL_SCHEMAS extends ToolSchemas = 'automatic'>(options?: {
     schemas?: TOOL_SCHEMAS;
-  }) {
-    const tools = (await this.ctx.run(
+  }): Promise<Record<string, any>> {
+    const tools = await this.ctx.run(
       `${this.name}-mcp-list-tools`,
       async () => await this.client.tools(options),
-    ));
-
+    );
     return Object.fromEntries(
       Object.entries(tools).map(([toolName, toolResult]) => [
         toolName,
