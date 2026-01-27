@@ -1,5 +1,11 @@
 # @restatedev/vercel-ai-middleware
 
+## 0.3.1
+
+### Patch Changes
+
+- Add Restate MCP Client
+
 ## 0.3.0
 
 ### Minor Changes
