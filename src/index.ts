@@ -5,6 +5,18 @@ export {
   getTerminalToolSteps,
   rethrowTerminalToolError,
 } from './lib/ai_infra';
+export {
+  createRestateMCPClient,
+  RestateMCPClient,
+  type ToolSchemas,
+  type ListResourcesResult,
+  type PaginatedRequest,
+  type RequestOptions,
+  type ReadResourceResult,
+  type ListResourceTemplatesResult,
+  type ListPromptsResult,
+  type GetPromptResult,
+} from './lib/mcp_client';
 export type {
   Context,
   RunOptions,
