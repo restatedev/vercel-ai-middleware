@@ -5,6 +5,10 @@ import {
   TerminalError,
 } from '@restatedev/restate-sdk';
 import type {
+  EmbeddingModelV3,
+  EmbeddingModelV3Middleware,
+  ImageModelV3,
+  ImageModelV3Middleware,
   LanguageModelV3,
   LanguageModelV3Middleware,
 } from '@ai-sdk/provider';
@@ -14,6 +18,14 @@ import { type StepResult, type TypedToolError, type ToolSet } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
   ReturnType<LanguageModelV3['doGenerate']>
+>;
+
+export type DoEmbedResponseType = Awaited<
+  ReturnType<EmbeddingModelV3['doEmbed']>
+>;
+
+export type DoImageResponseType = Awaited<
+  ReturnType<ImageModelV3['doGenerate']>
 >;
 
 export class SuperJsonSerde<T> implements Serde<T> {
@@ -55,6 +67,29 @@ export const durableCalls = (
       ctx.run(`calling ${model.provider}`, async () => doGenerate(), runOpts),
   };
 };
+
+export const durableEmbeds = (
+  ctx: Context,
+  opts?: RunOptions<DoEmbedResponseType>,
+): EmbeddingModelV3Middleware => ({
+  specificationVersion: 'v3',
+  wrapEmbed: async ({ model, doEmbed }) =>
+    ctx.run(`embedding ${model.provider}`, async () => doEmbed(), {
+      ...opts,
+    }),
+});
+
+export const durableImages = (
+  ctx: Context,
+  opts?: RunOptions<DoImageResponseType>,
+): ImageModelV3Middleware => ({
+  specificationVersion: 'v3',
+  wrapGenerate: async ({ model, doGenerate }) =>
+    ctx.run(`imaging ${model.provider}`, async () => doGenerate(), {
+      serde: new SuperJsonSerde<DoImageResponseType>(),
+      ...opts,
+    }),
+});
 
 function isTerminalError(err: unknown) {
   if (err instanceof TerminalError) {
