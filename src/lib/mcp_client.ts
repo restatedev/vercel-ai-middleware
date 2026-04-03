@@ -85,7 +85,7 @@ export class RestateMCPClient {
         toolName,
         {
           description: toolResult.description,
-          execute: async (input: unknown, options: ToolExecutionOptions) => {
+          execute: (input: unknown, options: ToolExecutionOptions) => {
             return this.ctx.run(
               `${toolName}-mcp-tool-execute`,
               async () => {

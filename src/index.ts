@@ -6,6 +6,7 @@ export {
   rethrowTerminalToolError,
 } from './lib/ai_infra';
 export { createRestateMCPClient, RestateMCPClient } from './lib/mcp_client';
+export { durableToolCalls } from './lib/durable_tool_calls';
 export type {
   _dependencies,
   ToolSchemas,
