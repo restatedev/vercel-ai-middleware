@@ -9,11 +9,13 @@
   ],
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
+      "default": "./dist/index.js"
     }
   },
   "devDependencies": {
@@ -34,9 +36,9 @@
     "typescript-eslint": "^8.35.1"
   },
   "peerDependencies": {
-    "@ai-sdk/mcp": "2.0.1",
-    "@restatedev/restate-sdk": "^1.10.2",
-    "ai": "7.0.2",
+    "@ai-sdk/mcp": "^2.0.1",
+    "@restatedev/restate-sdk": "^1.16.2",
+    "ai": "^7.0.2",
     "superjson": "^2.2.2"
   },
   "engines": {

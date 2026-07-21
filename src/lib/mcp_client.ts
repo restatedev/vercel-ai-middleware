@@ -40,7 +40,7 @@ export async function createRestateMCPClient(
   const client = await createMCPClient(config);
   return new RestateMCPClient(
     ctx,
-    config.name ?? 'RestateMCPClient',
+    config.clientName ?? config.name ?? 'RestateMCPClient',
     client,
     retryPolicy,
   );
@@ -76,15 +76,22 @@ export class RestateMCPClient {
   async tools<TOOL_SCHEMAS extends ToolSchemas = 'automatic'>(options?: {
     schemas?: TOOL_SCHEMAS;
   }): Promise<McpToolSet<TOOL_SCHEMAS>> {
-    const tools = await this.ctx.run(
+    const definitions = await this.ctx.run(
       `${this.name}-mcp-list-tools`,
-      async () => await this.client.tools(options),
+      async () => await this.client.listTools(),
+      this.retryPolicy,
     );
+
+    // Only serializable tool definitions cross the Restate journal boundary.
+    // Recreate the executable AI SDK tools afterwards so functions, schemas,
+    // metadata, and MCP-specific model output conversion remain intact.
+    const tools = this.client.toolsFromDefinitions(definitions, options);
+
     return Object.fromEntries(
-      Object.entries(tools).map(([toolName, toolResult]) => [
+      Object.entries(tools).map(([toolName, toolDefinition]) => [
         toolName,
         {
-          description: toolResult.description,
+          ...toolDefinition,
           execute: async (
             input: unknown,
             options: ToolExecutionOptions<unknown>,
@@ -92,22 +99,11 @@ export class RestateMCPClient {
             return this.ctx.run(
               `${toolName}-mcp-tool-execute`,
               async () => {
-                // Retrieve tools again to get access to the execute function
-                const toolDefs = await this.client.tools();
-                const tool = toolDefs[toolName];
-                if (!tool) {
-                  throw new TerminalError(`Tool ${toolName} not found`);
-                }
                 try {
-                  return await tool.execute(input, options);
+                  return await toolDefinition.execute(input, options);
                 } catch (error) {
                   if (isMCPClientError(error)) {
-                    throw new TerminalError(
-                      `${error.name} - ${error.message}`,
-                      {
-                        cause: error.cause,
-                      },
-                    );
+                    throw asTerminalError(error);
                   }
                   throw error;
                 }
@@ -115,14 +111,6 @@ export class RestateMCPClient {
               this.retryPolicy,
             );
           },
-          inputSchema: {
-            ...toolResult.inputSchema,
-            _type: undefined,
-            validate: undefined,
-            [Symbol.for('vercel.ai.schema')]: true,
-            [Symbol.for('vercel.ai.validator')]: true,
-          },
-          type: 'dynamic',
         },
       ]),
     ) as McpToolSet<TOOL_SCHEMAS>;
@@ -143,9 +131,7 @@ export class RestateMCPClient {
         } catch (error) {
           if (isMCPClientError(error)) {
             // For example client closed, unparsable response, etc.
-            throw new TerminalError(`${error.name} - ${error.message}`, {
-              cause: error.cause,
-            });
+            throw asTerminalError(error);
           }
           throw error;
         }
@@ -169,9 +155,7 @@ export class RestateMCPClient {
         } catch (error) {
           if (isMCPClientError(error)) {
             // For example client closed, unparsable response, etc.
-            throw new TerminalError(`${error.name} - ${error.message}`, {
-              cause: error.cause,
-            });
+            throw asTerminalError(error);
           }
           throw error;
         }
@@ -194,9 +178,7 @@ export class RestateMCPClient {
         } catch (error) {
           if (isMCPClientError(error)) {
             // For example client closed, unparsable response, etc.
-            throw new TerminalError(`${error.name} - ${error.message}`, {
-              cause: error.cause,
-            });
+            throw asTerminalError(error);
           }
           throw error;
         }
@@ -220,9 +202,7 @@ export class RestateMCPClient {
         } catch (error) {
           if (isMCPClientError(error)) {
             // For example client closed, unparsable response, etc.
-            throw new TerminalError(`${error.name} - ${error.message}`, {
-              cause: error.cause,
-            });
+            throw asTerminalError(error);
           }
           throw error;
         }
@@ -247,9 +227,7 @@ export class RestateMCPClient {
         } catch (error) {
           if (isMCPClientError(error)) {
             // For example client closed, unparsable response, etc.
-            throw new TerminalError(`${error.name} - ${error.message}`, {
-              cause: error.cause,
-            });
+            throw asTerminalError(error);
           }
           throw error;
         }
@@ -268,4 +246,10 @@ export class RestateMCPClient {
 
 function isMCPClientError(error: unknown): error is AISDKError {
   return AISDKError.isInstance(error) && error.name == 'MCPClientError';
+}
+
+function asTerminalError(error: AISDKError): TerminalError {
+  const terminalError = new TerminalError(`${error.name} - ${error.message}`);
+  terminalError.cause = error.cause;
+  return terminalError;
 }
