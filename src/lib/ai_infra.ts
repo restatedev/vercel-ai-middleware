@@ -95,13 +95,13 @@ export const durableCalls = (
         runOpts,
       );
 
-      // Count tool calls in the response
+      // Collect tool calls from the response
       const toolCalls = result.content.filter(
         (part) => part.type === 'tool-call',
       );
 
-      // Only batch when there are multiple tool calls
-      if (toolCalls.length <= 1) {
+      // No tool calls — nothing to batch
+      if (toolCalls.length === 0) {
         return result;
       }
 

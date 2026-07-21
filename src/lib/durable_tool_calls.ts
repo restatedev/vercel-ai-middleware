@@ -1,9 +1,10 @@
 import {
+  type Context,
   RestatePromise,
   TerminalError,
 } from '@restatedev/restate-sdk';
 import type { ToolExecutionOptions, ToolSet } from 'ai';
-import { BATCH_TOOL_NAME } from './ai_infra';
+import { BATCH_TOOL_NAME, superJson } from './ai_infra';
 
 const schemaSymbol = Symbol.for('vercel.ai.schema');
 
@@ -34,8 +35,10 @@ type BatchOutput = BatchResultEntry[];
  * {@link durableCalls} middleware uses to execute parallel tool calls via
  * `RestatePromise.allSettled()`.
  *
- * Tool `execute` functions MUST return a `RestatePromise` (i.e., must NOT be
- * declared `async`). Use {@link durableTool} to wrap plain functions.
+ * Tool `execute` functions that return a `RestatePromise` (e.g., from
+ * `ctx.run()` or `ctx.serviceClient()`) are used directly. Tools that return
+ * a plain value or native `Promise` are automatically wrapped in `ctx.run()`
+ * for durability.
  *
  * @example
  * ```ts
@@ -47,20 +50,27 @@ type BatchOutput = BatchResultEntry[];
  * const { text } = await generateText({
  *   model,
  *   tools: durableToolCalls(ctx, {
+ *     // Already durable — returns RestatePromise directly
  *     myTool: tool({
  *       parameters: z.object({ query: z.string() }),
  *       execute: (input) => ctx.run("myTool", () => doWork(input)),
+ *     }),
+ *     // Also works — auto-wrapped in ctx.run()
+ *     simpleTool: tool({
+ *       parameters: z.object({ x: z.number() }),
+ *       execute: async (input) => input.x * 2,
  *     }),
  *   }),
  * });
  * ```
  */
 export function durableToolCalls<TOOLS extends ToolSet>(
+  ctx: Context,
   tools: TOOLS,
 ): TOOLS & Record<typeof BATCH_TOOL_NAME, ToolSet[string]> {
   return {
     ...tools,
-    [BATCH_TOOL_NAME]: createBatchTool(tools),
+    [BATCH_TOOL_NAME]: createBatchTool(ctx, tools),
   } as TOOLS & Record<typeof BATCH_TOOL_NAME, ToolSet[string]>;
 }
 
@@ -68,7 +78,19 @@ export function durableToolCalls<TOOLS extends ToolSet>(
 // Internal: Batch Tool
 // ---------------------------------------------------------------------------
 
-function createBatchTool(tools: ToolSet): ToolSet[string] {
+/**
+ * Check if a value is a RestatePromise by looking for Restate-specific methods.
+ */
+function isRestatePromise(value: unknown): value is RestatePromise<unknown> {
+  return (
+    value != null &&
+    typeof value === 'object' &&
+    'orTimeout' in value &&
+    typeof (value as Record<string, unknown>).orTimeout === 'function'
+  );
+}
+
+function createBatchTool(ctx: Context, tools: ToolSet): ToolSet[string] {
   return {
     description: 'Internal: Restate durable parallel tool execution',
     type: 'function' as const,
@@ -106,11 +128,23 @@ function createBatchTool(tools: ToolSet): ToolSet[string] {
             `Tool "${call.toolName}" not found or has no execute function`,
           );
         }
-        // Call the tool's execute — it MUST return RestatePromise (non-async execute)
-        return tool.execute(call.args, {
+
+        const result = tool.execute(call.args, {
           ...options,
           toolCallId: call.toolCallId,
-        }) as RestatePromise<unknown>;
+        });
+
+        // If the tool already returns a RestatePromise (from ctx.run(),
+        // ctx.serviceClient(), etc.), use it directly.
+        // Otherwise, wrap in ctx.run() to make it durable.
+        if (isRestatePromise(result)) {
+          return result;
+        }
+        return ctx.run(
+          `${call.toolName}-tool-execute`,
+          async () => result,
+          { serde: superJson },
+        );
       });
 
       return RestatePromise.allSettled(promises).map(
