@@ -1,14 +1,12 @@
 export {
   durableCalls,
   durableEmbeds,
-  durableImages,
   superJson,
   SuperJsonSerde,
 } from './lib/ai_infra';
 export type {
   DoEmbedResponseType,
   DoGenerateResponseType,
-  DoImageResponseType,
 } from './lib/ai_infra';
 export {
   hasTerminalToolError,
