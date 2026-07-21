@@ -7,8 +7,6 @@ import {
 import type {
   EmbeddingModelV3,
   EmbeddingModelV3Middleware,
-  ImageModelV3,
-  ImageModelV3Middleware,
   LanguageModelV3,
   LanguageModelV3Middleware,
 } from '@ai-sdk/provider';
@@ -22,10 +20,6 @@ export type DoGenerateResponseType = Awaited<
 
 export type DoEmbedResponseType = Awaited<
   ReturnType<EmbeddingModelV3['doEmbed']>
->;
-
-export type DoImageResponseType = Awaited<
-  ReturnType<ImageModelV3['doGenerate']>
 >;
 
 export class SuperJsonSerde<T> implements Serde<T> {
@@ -75,18 +69,6 @@ export const durableEmbeds = (
   specificationVersion: 'v3',
   wrapEmbed: async ({ model, doEmbed }) =>
     ctx.run(`embedding ${model.provider}`, async () => doEmbed(), {
-      ...opts,
-    }),
-});
-
-export const durableImages = (
-  ctx: Context,
-  opts?: RunOptions<DoImageResponseType>,
-): ImageModelV3Middleware => ({
-  specificationVersion: 'v3',
-  wrapGenerate: async ({ model, doGenerate }) =>
-    ctx.run(`imaging ${model.provider}`, async () => doGenerate(), {
-      serde: new SuperJsonSerde<DoImageResponseType>(),
       ...opts,
     }),
 });
