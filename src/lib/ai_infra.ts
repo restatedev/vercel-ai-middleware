@@ -7,15 +7,15 @@ import {
 import type {
   EmbeddingModelV3,
   EmbeddingModelV3Middleware,
-  LanguageModelV3,
-  LanguageModelV3Middleware,
+  LanguageModelV4,
+  LanguageModelV4Middleware,
 } from '@ai-sdk/provider';
 
 import superjson from 'superjson';
 import { type StepResult, type TypedToolError, type ToolSet } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
-  ReturnType<LanguageModelV3['doGenerate']>
+  ReturnType<LanguageModelV4['doGenerate']>
 >;
 
 export type DoEmbedResponseType = Awaited<
@@ -41,22 +41,22 @@ export const superJson = new SuperJsonSerde<any>();
 
 /**
  * The following function is a middleware that provides durability to the results of a
- * `doGenerate` method of a LanguageModelV1 instance.
+ * `doGenerate` method of a LanguageModelV4 instance.
  * @param ctx the restate context used to capture the execution of the `doGenerate` method.
  * @param opts retry options for the `doGenerate` method.
- * @returns an LanguageModelV2Middleware that provides durability to the underlying model.
+ * @returns an LanguageModelV4Middleware that provides durability to the underlying model.
  */
 export const durableCalls = (
   ctx: Context,
   opts?: RunOptions<DoGenerateResponseType>,
-): LanguageModelV3Middleware => {
+): LanguageModelV4Middleware => {
   const runOpts = {
     serde: new SuperJsonSerde<DoGenerateResponseType>(),
     ...opts,
   };
 
   return {
-    specificationVersion: 'v3',
+    specificationVersion: 'v4',
     wrapGenerate: async ({ model, doGenerate }) =>
       ctx.run(`calling ${model.provider}`, async () => doGenerate(), runOpts),
   };
