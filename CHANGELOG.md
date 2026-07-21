@@ -1,5 +1,11 @@
 # @restatedev/vercel-ai-middleware
 
+## 0.4.0
+
+### Minor Changes
+
+- Upgrade to AI SDK 7
+
 ## 0.3.1
 
 ### Patch Changes
