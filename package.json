@@ -9,11 +9,13 @@
   ],
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
+      "default": "./dist/index.js"
     }
   },
   "devDependencies": {
@@ -34,17 +36,20 @@
     "typescript-eslint": "^8.35.1"
   },
   "peerDependencies": {
-    "@ai-sdk/mcp": "1.0.14",
-    "@restatedev/restate-sdk": "^1.10.2",
-    "ai": "6.0.52",
+    "@ai-sdk/mcp": "^2.0.1",
+    "@restatedev/restate-sdk": "^1.16.2",
+    "ai": "^7.0.2",
     "superjson": "^2.2.2"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-    "check-exports": "attw --pack .",
+    "check-exports": "attw --pack . --profile esm-only",
     "lint": "tsc && eslint",
     "ci": "npm run build && npm run check-format && npm run check-exports && npm run lint && npm run check-forgotten-exports",
     "changeset": "changeset",
