@@ -5,6 +5,8 @@ import {
   TerminalError,
 } from '@restatedev/restate-sdk';
 import type {
+  EmbeddingModelV4,
+  EmbeddingModelV4Middleware,
   LanguageModelV4,
   LanguageModelV4Middleware,
 } from '@ai-sdk/provider';
@@ -14,6 +16,10 @@ import { type StepResult, type TypedToolError, type ToolSet } from 'ai';
 
 export type DoGenerateResponseType = Awaited<
   ReturnType<LanguageModelV4['doGenerate']>
+>;
+
+export type DoEmbedResponseType = Awaited<
+  ReturnType<EmbeddingModelV4['doEmbed']>
 >;
 
 export class SuperJsonSerde<T> implements Serde<T> {
@@ -55,6 +61,17 @@ export const durableCalls = (
       ctx.run(`calling ${model.provider}`, async () => doGenerate(), runOpts),
   };
 };
+
+export const durableEmbeds = (
+  ctx: Context,
+  opts?: RunOptions<DoEmbedResponseType>,
+): EmbeddingModelV4Middleware => ({
+  specificationVersion: 'v4',
+  wrapEmbed: async ({ model, doEmbed }) =>
+    ctx.run(`embedding ${model.provider}`, async () => doEmbed(), {
+      ...opts,
+    }),
+});
 
 function isTerminalError(err: unknown) {
   if (err instanceof TerminalError) {

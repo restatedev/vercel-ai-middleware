@@ -1,5 +1,13 @@
-export { durableCalls, superJson, SuperJsonSerde } from './lib/ai_infra';
-export type { DoGenerateResponseType } from './lib/ai_infra';
+export {
+  durableCalls,
+  durableEmbeds,
+  superJson,
+  SuperJsonSerde,
+} from './lib/ai_infra';
+export type {
+  DoEmbedResponseType,
+  DoGenerateResponseType,
+} from './lib/ai_infra';
 export {
   hasTerminalToolError,
   getTerminalToolSteps,
