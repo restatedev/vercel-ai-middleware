@@ -5,8 +5,8 @@ import {
   TerminalError,
 } from '@restatedev/restate-sdk';
 import type {
-  EmbeddingModelV3,
-  EmbeddingModelV3Middleware,
+  EmbeddingModelV4,
+  EmbeddingModelV4Middleware,
   LanguageModelV4,
   LanguageModelV4Middleware,
 } from '@ai-sdk/provider';
@@ -19,7 +19,7 @@ export type DoGenerateResponseType = Awaited<
 >;
 
 export type DoEmbedResponseType = Awaited<
-  ReturnType<EmbeddingModelV3['doEmbed']>
+  ReturnType<EmbeddingModelV4['doEmbed']>
 >;
 
 export class SuperJsonSerde<T> implements Serde<T> {
@@ -65,8 +65,8 @@ export const durableCalls = (
 export const durableEmbeds = (
   ctx: Context,
   opts?: RunOptions<DoEmbedResponseType>,
-): EmbeddingModelV3Middleware => ({
-  specificationVersion: 'v3',
+): EmbeddingModelV4Middleware => ({
+  specificationVersion: 'v4',
   wrapEmbed: async ({ model, doEmbed }) =>
     ctx.run(`embedding ${model.provider}`, async () => doEmbed(), {
       ...opts,
