@@ -39,6 +39,18 @@ export class SuperJsonSerde<T> implements Serde<T> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const superJson = new SuperJsonSerde<any>();
 
+// Stops the model call when its attempt ends, so it can't run alongside the retry.
+function withAttemptSignal(
+  ctx: Context,
+  callerSignal: AbortSignal | undefined,
+): AbortSignal {
+  const attemptSignal = ctx.request().attemptCompletedSignal;
+  if (!callerSignal) {
+    return attemptSignal;
+  }
+  return AbortSignal.any([callerSignal, attemptSignal]);
+}
+
 /**
  * The following function is a middleware that provides durability to the results of a
  * `doGenerate` method of a LanguageModelV4 instance.
@@ -57,6 +69,10 @@ export const durableCalls = (
 
   return {
     specificationVersion: 'v4',
+    transformParams: async ({ params }) => ({
+      ...params,
+      abortSignal: withAttemptSignal(ctx, params.abortSignal),
+    }),
     wrapGenerate: async ({ model, doGenerate }) =>
       ctx.run(`calling ${model.provider}`, async () => doGenerate(), runOpts),
   };
